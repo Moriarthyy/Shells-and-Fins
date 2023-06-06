@@ -332,26 +332,11 @@ def jogo():
         
         # Event Handler do jogo
         run = True
-        menu_crustaceo_visivel = False
-        menu_peixe_visivel = False
         while run: 
              
             framerate.tick(30) # <-- fps
             MENU_MOUSE_POS = pygame.mouse.get_pos()
            
-            for event in pygame.event.get():
-                
-                if event.type == pygame.MOUSEBUTTONDOWN:    
-                    if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                        options_jogo()
-
-                if event.type == pygame.QUIT: # <---- verifica se o usuario fechou o app
-                    run = False
-                    pygame.quit()
-                    exit()
-                if pygame.key.get_pressed()[K_ESCAPE]:
-                    options_jogo()
-            
             posY_Bolha1 -= 6 # <-------- velocidade que a bolha sobe
             if (posY_Bolha1 <= 300):
                 posY_Bolha1 = tela_altura
@@ -397,7 +382,7 @@ def jogo():
             all_sprites_crustaceo.draw(screen)
             all_sprites_crustaceo.update()
 
-            if turno == 'peixe' and not menu_peixe_visivel:
+            if turno == 'peixe':                
                 screen.blit(BG_ACOES, (50, -80))
                 screen.blit(status_laranja, (104, -80))
                 vida_peixe.desenho_bar_vida(screen)
@@ -415,8 +400,19 @@ def jogo():
                     button.changeColor(MENU_MOUSE_POS)
                     button.update(screen)
                       
-                for event in pygame.event.get():
+                for event in pygame.event.get():                    
+                    if event.type == pygame.QUIT: # <---- verifica se o usuario fechou o app
+                        run = False
+                        pygame.quit()
+                        sys.exit()
+                        
                     if event.type == pygame.MOUSEBUTTONDOWN:
+                        if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                            options_jogo()
+
+                        if pygame.key.get_pressed()[K_ESCAPE]:
+                            options_jogo()
+
                         if BOTAO_ATAQUE_PEIXE.checkForInput(MENU_MOUSE_POS):
                             peixe.atacar()
                             turno = 'crustaceo'
@@ -427,15 +423,17 @@ def jogo():
                             peixe.recarregar()
                             turno = 'crustaceo'
                 
-            if turno == 'crustaceo' and not menu_crustaceo_visivel:
+            if turno == 'crustaceo':                
                 screen.blit(BG_ACOES, (775, 380))
                 screen.blit(status_azul, (820, 380))
                 vida_crustaceo.desenho_bar_vida(screen)
 
                 BOTAO_ATAQUE = Button(image= botao_azul, pos=(900, 600), 
                             text_input="ATACAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
+                            
                 BOTAO_DEFENDER = Button(image= botao_azul, pos=(1130, 600), 
-                                text_input="DEFENDER", font=fonte_botoes(15), base_color="white", hovering_color="orange")  
+                                text_input="DEFENDER", font=fonte_botoes(15), base_color="white", hovering_color="orange")
+
                 BOTAO_RECARREGAR = Button(image= botao_azul, pos=(1017, 670), 
                                 text_input="RECARREGAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
                 
@@ -444,21 +442,31 @@ def jogo():
                     button.changeColor(MENU_MOUSE_POS)
                     button.update(screen)  
 
-                for event in pygame.event.get():
-                    if event.type == pygame.MOUSEBUTTONDOWN:
+                for event in pygame.event.get(): 
+                    if event.type == pygame.QUIT: # <---- verifica se o usuario fechou o app                        
+                        run = False
+                        pygame.quit()
+                        sys.exit()   
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:                             
+                        if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                            options_jogo()
+
+                        if pygame.key.get_pressed()[K_ESCAPE]:
+                            options_jogo()
+                    
                         if BOTAO_ATAQUE.checkForInput(MENU_MOUSE_POS):
                             crustaceo.atacar()
                             turno = 'peixe'
-                            menu_crustaceo_visivel = False
-
+                            
                         if BOTAO_DEFENDER.checkForInput(MENU_MOUSE_POS):
                             crustaceo.defender()
                             turno = 'peixe'
-                            menu_crustaceo_visivel = False
+                            
                         if BOTAO_RECARREGAR.checkForInput(MENU_MOUSE_POS):
                             crustaceo.recarregar()
                             turno = 'peixe'
-                                        
+                                                
             pygame.display.flip() #o display.flip tem basicamente a mesma função do .update, ele atualiza os elementos na tela
 
 #MENU----------------------------------------------------------------------------------------------------------------------
