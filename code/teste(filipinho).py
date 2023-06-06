@@ -16,7 +16,7 @@ screen = pygame.display.set_mode((tela_largura, tela_altura)) # Define a tela do
 pygame.display.set_caption('Shells and Fins')
 
 #MUSICAS E SONS-----------------------------------------------------------------------------------------------------------]
-musica_menu = pygame.mixer.music.load('C:\Users\Pichau\Desktop\shells and fins\Shells and Fins\musica_e_sons\musica_sereia.mp3') # Define a música do menu
+musica_menu = pygame.mixer.music.load('musica_e_sons/musica_sereia.mp3') # Define a música do menu
 pygame.mixer.music.set_volume(0.02) # Define o volume da música
 pygame.mixer.music.play(-1) # Loop da música caso ela acabe.
 
