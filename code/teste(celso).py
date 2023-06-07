@@ -68,6 +68,15 @@ BG_ACOES = pygame.transform.scale(BG_ACOES, (470, 400))
 peixe_selecao = pygame.image.load('ui/peixe_selecao.png')
 crustaceo_selecao = pygame.image.load('ui/crustaceo_selecao.png')
 
+ak_selecao = pygame.image.load('ui/ak_selecao.png')
+
+bubble_selecao = pygame.image.load('ui/bubble_selecao.png')
+
+powerwasher_selecao = pygame.image.load('ui/powerwasher_selecao.png')
+
+backarrow = pygame.image.load('ui/backarrow.png')
+backarrow = pygame.transform.scale(backarrow, (65, 65))
+
 vencedor = ''
 
 # Classes -----------------------------------------------------------------------------------------------------------]
@@ -333,11 +342,13 @@ def Menu_Times():
         
         time_crustaceo = Button(image= crustaceo_selecao, pos=(930, 375), 
                                 text_input="CRUSTACEOS", font=get_font(25), base_color="orange", hovering_color="white")
+        backarrow_back1 = Button(image=backarrow, pos=(85, 70), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
         
         GO  = Button(image=None , pos=(640, 700), 
                     text_input="JOGA", font=get_font(30), base_color="white", hovering_color="orange")
         
-        for button in [time_peixe, time_crustaceo, GO]:
+        for button in [time_peixe, time_crustaceo, GO, backarrow_back1]:
             button.changeColor(MENU_MOUSE_POS)
             button.update(screen)
 
@@ -349,10 +360,12 @@ def Menu_Times():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if GO.checkForInput(MENU_MOUSE_POS):
                     jogo()
-                if time.peixe.checkForInput(MENU_MOUSE_POS):
+                if time_peixe.checkForInput(MENU_MOUSE_POS):
                     Menu_Armas()
                 if time_crustaceo.checkForInput(MENU_MOUSE_POS):
-                    Menu_Armas()    
+                    Menu_Armas()   
+                if backarrow_back1.checkForInput(MENU_MOUSE_POS):
+                    main_menu() 
 
         pygame.display.flip()
         
@@ -369,6 +382,44 @@ def Menu_Armas():
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 100))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
         
+
+        AK2O_stats = Button(image=ak_selecao, pos=(200, 375), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
+        
+        Bubble_stats = Button(image=bubble_selecao, pos=(500, 375), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
+        
+        powerwasher_stats = Button(image=powerwasher_selecao, pos=(800, 375), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
+        
+        backarrow_back = Button(image=backarrow, pos=(85, 70), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
+        
+        AK2O_Name = Button(image=None, pos=(200, 330), 
+                                text_input="AK2O", font=get_font(15), base_color=(255, 255, 255), hovering_color="blue")
+        Bubble_Name = Button(image=None, pos=(500, 330), 
+                                text_input="BubbleBlaster", font=get_font(15), base_color=(255, 255, 255), hovering_color="blue")
+        Powerwasher_Name = Button(image=None, pos=(800, 330), 
+                                text_input="PowerWasher", font=get_font(15), base_color=(255, 255, 255), hovering_color="blue")
+
+
+        for button in [AK2O_stats,Bubble_stats,powerwasher_stats, backarrow_back, AK2O_Name, Bubble_Name, Powerwasher_Name]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if AK2O_stats.checkForInput(MENU_MOUSE_POS):
+                    jogo()
+                if Bubble_stats.checkForInput(MENU_MOUSE_POS):
+                    jogo()
+                if powerwasher_stats.checkForInput(MENU_MOUSE_POS):
+                    jogo()
+                if backarrow_back.checkForInput(MENU_MOUSE_POS):
+                    Menu_Times()
         
         
         pygame.display.flip()
