@@ -126,9 +126,15 @@ class Arma:
                 self.municao = self.municao - 1
                 print(f'\nAtirou!\n')
 
-AK2O = Arma('AK2O', 24, 70, 4, 4) #rifle
-BubbleBlaster = Arma('BubbleBlaster', 50, 30, 2, 2) #shotgun
-PowerWasher = Arma('PowerWasher', 34, 80, 1, 1) #Sniper
+AK2O = Arma('AK2O', 25, 80, 8, 8) #rifle
+BubbleBlaster = Arma('BubbleBlaster', 40, 50, 3, 3) #shotgun
+PowerWasher = Arma('PowerWasher', 40, 70, 1, 1) #Sniper
+
+#Perde accuracy ao atirar consecutivamente
+#Fazer as diferenças entre classes(mirar e defender)
+
+mira = False
+defesa = False
 
 #definindo sprites ------------------------------------------------------------------------]
 class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do Peixe
@@ -154,25 +160,38 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
         self.Arma.atirar()
 
         acerto = randint(1,100) # Pega um numero entre 1 e 100, no range da precisão, acerta.
+        
         if self.Arma.precisao < acerto:
             print ("ERROU MISERAVI")
             return False
             
         elif self.Arma.precisao >= acerto:
             print ("ACERTOU MISERIA")
-            vida_crustaceo.hp = vida_crustaceo.hp - self.Arma.dano
-            print (vida_crustaceo.hp)
 
-            if (vida_crustaceo.hp <= 0):
-                End_game()
-                vencedor = 'Peixe'
-                return vencedor
+            if defesa == True:
+                vida_crustaceo.hp = vida_crustaceo.hp - self.Arma.dano/2
+                print (vida_crustaceo.hp)
+
+                if (vida_crustaceo.hp <= 0):
+                    End_game()
+                    vencedor = 'Peixe'
+                    return vencedor
+
+            elif defesa == False:
+                vida_crustaceo.hp = vida_crustaceo.hp - self.Arma.dano
+                print (vida_crustaceo.hp)
+
+                if (vida_crustaceo.hp <= 0):
+                    End_game()
+                    vencedor = 'Peixe'
+                    return vencedor                       
 
             return True
 
-    def defender(self):
-        print('DEFENDENDO PEIXE')
-        defender = True
+    def mirar(self):
+        print('PEIXARLYSON ESTA MIRANDO')
+        # mira = True
+        return True
 
     def recarregar(self):
         self.Arma.recarregar()
@@ -232,8 +251,10 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
             
         elif self.Arma.precisao >= acerto:
             print ("ACERTOU MISERIA")
-            vida_peixe.hp = vida_peixe.hp - self.Arma.dano
-            print (vida_peixe.hp)
+
+            if defesa == True:
+             vida_peixe.hp = vida_peixe.hp - self.Arma.dano
+             print (vida_peixe.hp)
 
             if (vida_peixe.hp <= 0):
                 End_game()
@@ -243,8 +264,8 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
             return True
 
     def defender(self):
-        print('DEFENDENDO CRUSTACEO')
-        defender = True
+        print('CRABONILDO ESTA DEFENDENDO')
+        defesa = True
 
     def recarregar(self):
         self.Arma.recarregar()
@@ -387,16 +408,16 @@ def jogo():
                 screen.blit(status_laranja, (104, -80))
                 vida_peixe.desenho_bar_vida(screen)
 
-                BOTAO_ATAQUE_PEIXE = Button(image=botao_laranja, pos=(175, 135),
+                BOTAO_ATAQUE_PEIXE = Button(image=botao_azul, pos=(175, 135),
                                             text_input="ATACAR", font=fonte_botoes(15), base_color="white",
                                             hovering_color="orange")
-                BOTAO_DEFENDER_PEIXE = Button(image=botao_laranja, pos=(400, 135),
-                                                text_input="DEFENDER", font=fonte_botoes(15), base_color="white",
+                BOTAO_MIRAR_PEIXE = Button(image=botao_azul, pos=(400, 135),
+                                                text_input="MIRAR", font=fonte_botoes(15), base_color="white",
                                                 hovering_color="orange")
-                BOTAO_RECARREGAR_PEIXE = Button(image=botao_laranja, pos=(285, 200),
+                BOTAO_RECARREGAR_PEIXE = Button(image=botao_azul, pos=(285, 200),
                                                     text_input="RECARREGAR", font=fonte_botoes(15), base_color="white",
                                                     hovering_color="orange")
-                for button in [BOTAO_ATAQUE_PEIXE, BOTAO_DEFENDER_PEIXE, BOTAO_RECARREGAR_PEIXE]:
+                for button in [BOTAO_ATAQUE_PEIXE, BOTAO_MIRAR_PEIXE, BOTAO_RECARREGAR_PEIXE]:
                     button.changeColor(MENU_MOUSE_POS)
                     button.update(screen)
                       
@@ -414,28 +435,39 @@ def jogo():
                             options_jogo()
 
                         if BOTAO_ATAQUE_PEIXE.checkForInput(MENU_MOUSE_POS):
-                            peixe.atacar()
+                            if peixe.mirar() == True:
+                                peixe.Arma.precisao == 100
+                                peixe.atacar()
+                                peixe.mirar() == False
+                                # mira = False
+                                turno = 'crustaceo'
+
+                            if peixe.mirar() == False:
+                                peixe.atacar()
+                                turno = 'crustaceo'
+                            
+                        if BOTAO_MIRAR_PEIXE.checkForInput(MENU_MOUSE_POS):
+                            peixe.mirar()
                             turno = 'crustaceo'
-                        if BOTAO_DEFENDER_PEIXE.checkForInput(MENU_MOUSE_POS):
-                            peixe.defender()
-                            turno = 'crustaceo'
+                            
                         if BOTAO_RECARREGAR_PEIXE.checkForInput(MENU_MOUSE_POS):
+                            mira = False
                             peixe.recarregar()
                             turno = 'crustaceo'
-                
+            mira = False
             if turno == 'crustaceo':                
                 screen.blit(BG_ACOES, (775, 380))
                 screen.blit(status_azul, (820, 380))
                 vida_crustaceo.desenho_bar_vida(screen)
 
-                BOTAO_ATAQUE = Button(image= botao_azul, pos=(900, 600), 
+                BOTAO_ATAQUE = Button(image= botao_laranja, pos=(900, 600), 
                             text_input="ATACAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
                             
-                BOTAO_DEFENDER = Button(image= botao_azul, pos=(1130, 600), 
-                                text_input="DEFENDER", font=fonte_botoes(15), base_color="white", hovering_color="orange")
+                BOTAO_DEFENDER = Button(image= botao_laranja, pos=(1130, 600), 
+                            text_input="DEFENDER", font=fonte_botoes(15), base_color="white", hovering_color="orange")
 
-                BOTAO_RECARREGAR = Button(image= botao_azul, pos=(1017, 670), 
-                                text_input="RECARREGAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
+                BOTAO_RECARREGAR = Button(image= botao_laranja, pos=(1017, 670),
+                            text_input="RECARREGAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
                 
 
                 for button in [BOTAO_ATAQUE, BOTAO_DEFENDER, BOTAO_RECARREGAR]:
@@ -457,6 +489,7 @@ def jogo():
                     
                         if BOTAO_ATAQUE.checkForInput(MENU_MOUSE_POS):
                             crustaceo.atacar()
+                            defesa = False
                             turno = 'peixe'
                             
                         if BOTAO_DEFENDER.checkForInput(MENU_MOUSE_POS):
@@ -465,6 +498,7 @@ def jogo():
                             
                         if BOTAO_RECARREGAR.checkForInput(MENU_MOUSE_POS):
                             crustaceo.recarregar()
+                            defesa = False
                             turno = 'peixe'
                                                 
             pygame.display.flip() #o display.flip tem basicamente a mesma função do .update, ele atualiza os elementos na tela
@@ -778,14 +812,5 @@ class Char(Arma):
     def atacar(self):
         self.Arma.atirar()
         acerto = randint(1,100) # Pega um numero entre 1 e 100, no range da precisão, acerta.
-
-        if self.Arma.precisao < acerto:
-            return False
-        elif self.Arma.precisao >= acerto:
-            return True
-    
-    def defender(self):
-        print('Você defende!')
-        self.defesa = True # Retorna para false depois
         
 main_menu()

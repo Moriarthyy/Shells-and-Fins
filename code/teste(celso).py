@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 import sys
 import time
-from random import randint
+from random import randint, choice
 
 pygame.init() # <--- inicia o pygame
 
@@ -33,8 +33,9 @@ imagem_fundo = pygame.image.load('ui/fundo_pokemon.jpg') # Definindo a imagem de
 imagem_fundo = pygame.transform.scale(imagem_fundo, (1280, 720)) # .transform muda a escala de uma imagem para a desejada
 
 fundo_menu = pygame.image.load("ui/fundo_menu.png") # Definindo imagem de fundo do menu
-fundo_menu = pygame.transform.scale(fundo_menu, (1280, 720))  
+fundo_menu = pygame.transform.scale(fundo_menu, (1280, 720))
 
+fundo_selecao = pygame.image.load("ui/fundo_selecao.png")
 #ASSETS--------------------------------------------------------------------------------------------------------------------]
     # Definindo as imagens do jogo 
 bolha = pygame.image.load('sprites/bolha.png')
@@ -63,6 +64,11 @@ status_laranja = pygame.transform.scale(status_laranja, (360, 280))
 
 BG_ACOES = pygame.image.load('ui/tela_acoes.png')
 BG_ACOES = pygame.transform.scale(BG_ACOES, (470, 400))
+
+peixe_selecao = pygame.image.load('ui/peixe_selecao.png')
+crustaceo_selecao = pygame.image.load('ui/crustaceo_selecao.png')
+
+vencedor = ''
 
 # Classes -----------------------------------------------------------------------------------------------------------]
 """
@@ -124,10 +130,12 @@ class Arma:
                 self.municao = self.municao - 1
                 print(f'\nAtirou!\n')
 
+AK2O = Arma('AK2O', 24, 65, 4, 4) #Rifle
+BubbleBlaster = Arma('BubbleBlaster', 45, 50, 3, 3) #Shotgun
+PowerWasher = Arma('PowerWasher', 34, 70, 1, 1) #Sniper
 
-AK2O = Arma('AK2O', 24, 55, 4, 4) #rifle
-BubbleBlaster = Arma('BubbleBlaster', 50, 30, 2, 2) #shotgun
-PowerWasher = Arma('PowerWasher', 34, 80, 1, 1) #Sniper
+#Diminuir accuracy com tiros consecutivos.(Resetar acurracy ao recarregar)
+#Aumentar accuracy ao defender.
 
 #definindo sprites ------------------------------------------------------------------------]
 class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do Peixe
@@ -140,7 +148,7 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
         self.Barra_De_Vida = Barra_De_Vida
         
         #-- Adiciona sprites na lista
-        self.sprites.append(pygame.image.load('sprites/peixarlison/peixarlison ak-2o.png'))
+        self.sprites.append(pygame.image.load('sprites/peixarlison/peixarlison_4.png'))
         self.atual = 0
         self.image = self.sprites[0]
         self.image = pygame.transform.scale(self.image, (340, 242))
@@ -164,12 +172,15 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
 
             if (vida_crustaceo.hp <= 0):
                 End_game()
+                vencedor = 'Peixe'
+                return vencedor
 
             return True
 
     def defender(self):
-        print('DEFENDENDO PEIXE')
+        print('PEIXARLISON ESTA MIRANDO')
         defender = True
+        #self.Arma.precisao = self.Arma.precisao + 15
 
     def recarregar(self):
         self.Arma.recarregar()
@@ -188,6 +199,16 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
             self.image = self.sprites[int(self.atual)]
             self.image = pygame.transform.scale(self.image, ((340, 242))) # <-- Mudando o tamanho da imagem
 
+#dimensões do peixe
+x_peixe = 800
+y_peixe = 110
+
+vida_peixe = Barra_De_Vida(posX_vida=130, posY_vida=45, l=295, a=16, max_hp=100)
+
+all_sprites_peixe = pygame.sprite.Group()
+peixe = Peixe(Arma= AK2O, Barra_De_Vida=vida_peixe)
+
+all_sprites_peixe.add(peixe)
 
 class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do peixe, mas para o crustaceo
 
@@ -199,7 +220,7 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
         self.Barra_de_Vida = Barra_De_Vida
 
         #-- Adiciona sprites na lista
-        self.sprites.append(pygame.image.load('sprites/peixarlison/peixarlison costa bubbleblaster.png'))
+        self.sprites.append(pygame.image.load('sprites/crabonildo/crabonildo_costas.png'))
         self.atual = 0
         self.image = self.sprites[0]
         self.image = pygame.transform.scale(self.image, (111*3, 131*3))
@@ -224,11 +245,13 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
 
             if (vida_peixe.hp <= 0):
                 End_game()
+                vencedor = 'Crustaceo'
+                return vencedor
 
             return True
 
     def defender(self):
-        print('DEFENDENDO CRUSTACEO')
+        print('CRABONILDO ESTA A DEFENDER')
         defender = True
 
     def recarregar(self):
@@ -246,17 +269,6 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
             self.image = self.sprites[int(self.atual)]
             self.image = pygame.transform.scale(self.image, (100*3, 100*3)) # <-- Mudando o tamanho da imagem
 
-#definindo peixe
-x_peixe = 800
-y_peixe = 110
-
-vida_peixe = Barra_De_Vida(posX_vida=130, posY_vida=45, l=295, a=16, max_hp=100)
-
-all_sprites_peixe = pygame.sprite.Group()
-peixe = Peixe(Arma= AK2O, Barra_De_Vida=vida_peixe)
-
-all_sprites_peixe.add(peixe)
-#definindo crustaceo
 x_crustaceo = 95
 y_crustaceo = 369
 
@@ -269,176 +281,263 @@ all_sprites_crustaceo.add(crustaceo)
 
 #Codigo do Botão------------------------------------------------------------------------------------
 class Button(): # Definindo classe do botão, todos os ''cliques'' do jogo entram nessa classe
-	def __init__(self, image, pos, text_input, font, base_color, hovering_color):
-		self.image = image
-		self.x_pos = pos[0]
-		self.y_pos = pos[1]
-		self.font = font
-		self.base_color, self.hovering_color = base_color, hovering_color
-		self.text_input = text_input
-		self.text = self.font.render(self.text_input, True, self.base_color)
+    def __init__(self, image, pos, text_input, font, base_color, hovering_color):
+        self.image = image
+        self.x_pos = pos[0]
+        self.y_pos = pos[1]
+        self.font = font
+        self.base_color, self.hovering_color = base_color, hovering_color
+        self.text_input = text_input
+        self.text = self.font.render(self.text_input, True, self.base_color)
+        if self.image is None:
+            self.image = self.text
 
-		if self.image is None:
-			self.image = self.text
+        self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
+        self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
 
-		self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
-		self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
+    def update(self, screen):
+        if self.image is not None:
+            screen.blit(self.image, self.rect)
+        screen.blit(self.text, self.text_rect)
 
-	def update(self, screen):
-		if self.image is not None:
-			screen.blit(self.image, self.rect)
-		screen.blit(self.text, self.text_rect)
+    def checkForInput(self, position): # Reconhece a posição
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
+            return True
+        return False
 
-	def checkForInput(self, position): # Reconhece a posição
-		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
-			return True
-		return False
+    def changeColor(self, position): # Muda a cor do botão
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
+            self.text = self.font.render(self.text_input, True, self.hovering_color)
+        else:
+            self.text = self.font.render(self.text_input, True, self.base_color)
+# Função para definir a fonte do texto
+def get_font(size): # Definindo a fonte utilizada e seu tamanho
+    return pygame.font.Font('fontes/Super Mario Bros. 2.ttf', size)
 
-	def changeColor(self, position): # Muda a cor do botão
-		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
-			self.text = self.font.render(self.text_input, True, self.hovering_color)
-		else:
-			self.text = self.font.render(self.text_input, True, self.base_color)
+# Menu Para escolha de times
+def Menu_Times():
 
-#LOOP DO JOGO ---------------------------------------------------------------------] 
-def jogo():
-    # Resets (O que vai ser resetado quando começa o jogo, munição, vida...)
-
-    peixe.Arma.municao = peixe.Arma.municao_max
-    crustaceo.Arma.municao = crustaceo.Arma.municao_max
-    
-    vida_crustaceo.hp = vida_crustaceo.max_hp
-    vida_peixe.hp = vida_peixe.max_hp
-    
-    pygame.mixer.music.unload #Pausa a música do menu, para não tocar durante o jogo
-    pygame.mixer.music.load('musica_e_sons/musica_rocky.mp3')
-    pygame.mixer.music.play(-1)
-#posições das bolhas------------------------------------------------------------]
-    posX_Bolha1 = randint(720, 1200)
-    posY_Bolha1 = randint(5, 450)
-
-    posX_Bolha2 = randint(720, 1200)
-    posY_Bolha2 = randint(5, 450)
-
-    posX_Bolha3 = randint(720, 1200)
-    posY_Bolha3 = randint(5, 450)
-    
-    # Event Handler do jogo
-    run = True
-    while run: 
-
-        framerate.tick(30) # <-- fps
-
+    escolha = True
+    while escolha:
+        
+        screen.blit(fundo_selecao, (0,0))
         MENU_MOUSE_POS = pygame.mouse.get_pos()
+        times = ['Peixes', 'Crustaceos']
+        print(MENU_MOUSE_POS)
+        OPTIONS_TEXT = get_font(30).render("Escolha Sua Raça.", True, "black")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 100))
+        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
         
-        for event in pygame.event.get():
-            
-            if event.type == pygame.MOUSEBUTTONDOWN:    
-                if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    options_jogo()
-            #CRUSTACEO
-            if event.type == pygame.MOUSEBUTTONDOWN:    
-                if BOTAO_ATAQUE.checkForInput(MENU_MOUSE_POS):
-                    crustaceo.atacar()
-            if event.type == pygame.MOUSEBUTTONDOWN:    
-                if BOTAO_DEFENDER.checkForInput(MENU_MOUSE_POS):
-                    crustaceo.defender()
-            if event.type == pygame.MOUSEBUTTONDOWN:    
-                if BOTAO_RECARREGAR.checkForInput(MENU_MOUSE_POS): 
-                    crustaceo.recarregar()
-                    
-            #PEIXE
-            if event.type ==  pygame.MOUSEBUTTONDOWN:
-                if BOTAO_ATAQUE_PEIXE.checkForInput(MENU_MOUSE_POS):
-                    peixe.atacar()
-            if event.type == pygame.MOUSEBUTTONDOWN:    
-                if BOTAO_DEFENDER_PEIXE.checkForInput(MENU_MOUSE_POS):
-                    peixe.defender()
-            if event.type == pygame.MOUSEBUTTONDOWN:    
-                if BOTAO_RECARREGAR_PEIXE.checkForInput(MENU_MOUSE_POS): 
-                    peixe.recarregar()  
-
-            #inserir funções que fazem o ataque, defesa e recarregamento
-
-            if event.type == pygame.QUIT: # <---- verifica se o usuario fechou o app
-                run = False
-                pygame.quit()
-                exit()
-            if pygame.key.get_pressed()[K_ESCAPE]:
-                 options_jogo()
+        time_peixe = Button(image= peixe_selecao, pos=(330, 375), 
+                                text_input="PEIXES", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
         
-        posY_Bolha1 -= 6 # <-------- velocidade que a bolha sobe
-        if (posY_Bolha1 <= 300):
-            posY_Bolha1 = tela_altura
-            posX_Bolha1 = randint(720, 1200) # <------ definindo aleatoriamente a posição X da bolha
-    
-        posY_Bolha2 -= 7
-        if (posY_Bolha2 <= 300):
-            posY_Bolha2 = tela_altura
-            posX_Bolha2 = randint(720, 1200)
-
-        posY_Bolha3 -= 8
-        if (posY_Bolha3 <= 300):
-            posY_Bolha3 = tela_altura
-            posX_Bolha3 = randint(720, 1200)
-            
-#Blits do jogo------------------------------------------------------------------------------------------------------------
-        screen.blit(imagem_fundo, (0,0))
+        time_crustaceo = Button(image= crustaceo_selecao, pos=(930, 375), 
+                                text_input="CRUSTACEOS", font=get_font(25), base_color="orange", hovering_color="white")
         
-        screen.blit(bolha,(posX_Bolha1,posY_Bolha1))
-        screen.blit(bolha2,(posX_Bolha2,posY_Bolha2))
-        screen.blit(bolha3,(posX_Bolha3,posY_Bolha3))
+        GO  = Button(image=None , pos=(640, 700), 
+                    text_input="JOGA", font=get_font(30), base_color="white", hovering_color="orange")
         
-        screen.blit(plataforma, (720,250))   # <-------  adicionando a plataforma a tela nas posições x e y
-        screen.blit(plataforma, (0, 560))
-        screen.blit(BG_ACOES, (775, 380))
-        screen.blit(BG_ACOES, (50, -80))
-        screen.blit(status_azul, (820, 380))
-        screen.blit(status_laranja, (104, -80))
-        #-  o .blit é o que adiciona um elemento à tela do jogo.
-        
-#opções-----------------------------------------------------------------------------------------------------------------------
-        OPTIONS_BUTTON = Button(image= pause, pos=(1220, 50), 
-                            text_input="", font=fonte_botoes(15), base_color="white", hovering_color="orange")
-        BOTAO_ATAQUE = Button(image= botao_azul, pos=(900, 600), 
-                            text_input="ATACAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
-        BOTAO_DEFENDER = Button(image= botao_azul, pos=(1130, 600), 
-                            text_input="DEFENDER", font=fonte_botoes(15), base_color="white", hovering_color="orange")  
-        BOTAO_RECARREGAR = Button(image= botao_azul, pos=(1017, 670), 
-                            text_input="RECARREGAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
-        
-        #BOTÕES DE AÇÕES DO PEIXE SÓ PRA DEIXAR SALVO E PEGAR DPS QND FOR FAZER CONDIÇÃO
-        BOTAO_ATAQUE_PEIXE = Button(image= botao_laranja, pos=(175, 135), 
-                            text_input="ATACAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
-        BOTAO_DEFENDER_PEIXE = Button(image= botao_laranja, pos=(400, 135), 
-                            text_input="DEFENDER", font=fonte_botoes(15), base_color="white", hovering_color="orange")  
-        BOTAO_RECARREGAR_PEIXE = Button(image= botao_laranja, pos=(285, 200), 
-                            text_input="RECARREGAR", font=fonte_botoes(15), base_color="white", hovering_color="orange")
-        
-        for button in [OPTIONS_BUTTON, BOTAO_ATAQUE, BOTAO_DEFENDER, BOTAO_RECARREGAR, BOTAO_ATAQUE_PEIXE, BOTAO_DEFENDER_PEIXE, BOTAO_RECARREGAR_PEIXE]:
+        for button in [time_peixe, time_crustaceo, GO]:
             button.changeColor(MENU_MOUSE_POS)
             button.update(screen)
-    
-#sprite all-----------------------------------------------------------------------------------------------------------------------
-        all_sprites_peixe.draw(screen) #<--  Inserindo o personagem na tela
-        all_sprites_peixe.update()
 
-        # dano = 0.05
-        # vida_crustaceo.hp = vida_crustaceo.hp - dano
-        vida_peixe.desenho_bar_vida(screen)
-        vida_crustaceo.desenho_bar_vida(screen)
-        all_sprites_crustaceo.draw(screen)
-        all_sprites_crustaceo.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+                
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if GO.checkForInput(MENU_MOUSE_POS):
+                    jogo()
+                if time.peixe.checkForInput(MENU_MOUSE_POS):
+                    Menu_Armas()
+                if time_crustaceo.checkForInput(MENU_MOUSE_POS):
+                    Menu_Armas()    
+
+        pygame.display.flip()
         
-        pygame.display.flip() #o display.flip tem basicamente a mesma função do .update, ele atualiza os elementos na tela
+# Menu de seleção de armas
+def Menu_Armas():
+    escolha_arma = True
+    while escolha_arma:
+    
+        screen.blit(fundo_selecao, (0,0))
+        
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+        
+        OPTIONS_TEXT = get_font(30).render("Escolha Sua Arma.", True, "black")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 100))
+        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
+        
+        
+        
+        pygame.display.flip()
+#LOOP DO JOGO ---------------------------------------------------------------------] 
+def jogo():
+        # Resets (O que vai ser resetado quando começa o jogo, munição, vida...)
+        peixe.Arma.municao = peixe.Arma.municao_max
+        crustaceo.Arma.municao = crustaceo.Arma.municao_max
+        
+        vida_crustaceo.hp = vida_crustaceo.max_hp
+        vida_peixe.hp = vida_peixe.max_hp
+        
+        pygame.mixer.music.unload #Pausa a música do menu, para não tocar durante o jogo
+        pygame.mixer.music.load('musica_e_sons/musica_rocky.mp3')
+        pygame.mixer.music.play(-1)
+    #posições das bolhas------------------------------------------------------------]
+        posX_Bolha1 = randint(720, 1200)
+        posY_Bolha1 = randint(5, 450)
 
+        posX_Bolha2 = randint(720, 1200)
+        posY_Bolha2 = randint(5, 450)
+
+        posX_Bolha3 = randint(720, 1200)
+        posY_Bolha3 = randint(5, 450)
+        
+        turnos = ['crustaceo', 'peixe']
+        turno = choice(turnos)
+        
+        # Event Handler do jogo
+        run = True
+        while run: 
+             
+            framerate.tick(30) # <-- fps
+            MENU_MOUSE_POS = pygame.mouse.get_pos()
+           
+            posY_Bolha1 -= 6 # <-------- velocidade que a bolha sobe
+            if (posY_Bolha1 <= 300):
+                posY_Bolha1 = tela_altura
+                posX_Bolha1 = randint(720, 1200) # <------ definindo aleatoriamente a posição X da bolha
+        
+            posY_Bolha2 -= 7
+            if (posY_Bolha2 <= 300):
+                posY_Bolha2 = tela_altura
+                posX_Bolha2 = randint(720, 1200)
+
+            posY_Bolha3 -= 8
+            if (posY_Bolha3 <= 300):
+                posY_Bolha3 = tela_altura
+                posX_Bolha3 = randint(720, 1200)
+                
+    #Blits do jogo------------------------------------------------------------------------------------------------------------
+            screen.blit(imagem_fundo, (0,0))
+            
+            screen.blit(bolha,(posX_Bolha1,posY_Bolha1))
+            screen.blit(bolha2,(posX_Bolha2,posY_Bolha2))
+            screen.blit(bolha3,(posX_Bolha3,posY_Bolha3))
+            
+            screen.blit(plataforma, (720,250))   # <-------  adicionando a plataforma a tela nas posições x e y
+            screen.blit(plataforma, (0, 560))
+
+            screen.blit(status_azul, (820, 380))
+            vida_crustaceo.desenho_bar_vida(screen)
+            screen.blit(status_laranja, (104, -80))
+            vida_peixe.desenho_bar_vida(screen)
+
+    #opções-----------------------------------------------------------------------------------------------------------------------
+            OPTIONS_BUTTON = Button(image= pause, pos=(1220, 50), 
+                                text_input="", font=get_font(15), base_color="white", hovering_color="orange")
+            
+            for button in [OPTIONS_BUTTON]:
+                button.changeColor(MENU_MOUSE_POS)
+                button.update(screen)
+        
+    #sprite all-----------------------------------------------------------------------------------------------------------------------
+            all_sprites_peixe.draw(screen) #<--  Inserindo o personagem na tela
+            all_sprites_peixe.update()
+
+            all_sprites_crustaceo.draw(screen)
+            all_sprites_crustaceo.update()
+
+            if turno == 'peixe':                
+                screen.blit(BG_ACOES, (50, -80))
+                screen.blit(status_laranja, (104, -80))
+                vida_peixe.desenho_bar_vida(screen)
+
+                BOTAO_ATAQUE_PEIXE = Button(image=botao_laranja, pos=(175, 135),
+                                            text_input="ATACAR", font=get_font(15), base_color="white",
+                                            hovering_color="orange")
+                BOTAO_DEFENDER_PEIXE = Button(image=botao_laranja, pos=(400, 135),
+                                                text_input="DEFENDER", font=get_font(15), base_color="white",
+                                                hovering_color="orange")
+                BOTAO_RECARREGAR_PEIXE = Button(image=botao_laranja, pos=(285, 200),
+                                                    text_input="RECARREGAR", font=get_font(13), base_color="white",
+                                                    hovering_color="orange")
+                for button in [BOTAO_ATAQUE_PEIXE, BOTAO_DEFENDER_PEIXE, BOTAO_RECARREGAR_PEIXE]:
+                    button.changeColor(MENU_MOUSE_POS)
+                    button.update(screen)
+                      
+                for event in pygame.event.get():                    
+                    if event.type == pygame.QUIT: # <---- verifica se o usuario fechou o app
+                        run = False
+                        pygame.quit()
+                        sys.exit()
+                        
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                            options_jogo()
+
+                        if pygame.key.get_pressed()[K_ESCAPE]:
+                            options_jogo()
+
+                        if BOTAO_ATAQUE_PEIXE.checkForInput(MENU_MOUSE_POS):
+                            peixe.atacar()
+                            turno = 'crustaceo'
+                        if BOTAO_DEFENDER_PEIXE.checkForInput(MENU_MOUSE_POS):
+                            defender = false
+                            peixe.mirar()
+                            turno = 'crustaceo'
+                        if BOTAO_RECARREGAR_PEIXE.checkForInput(MENU_MOUSE_POS):
+                            peixe.recarregar()
+                            turno = 'crustaceo'
+                
+            if turno == 'crustaceo':                
+                screen.blit(BG_ACOES, (775, 380))
+                screen.blit(status_azul, (820, 380))
+                vida_crustaceo.desenho_bar_vida(screen)
+
+                BOTAO_ATAQUE = Button(image= botao_azul, pos=(900, 600), 
+                            text_input="ATACAR", font=get_font(15), base_color="white", hovering_color="orange")
+                            
+                BOTAO_DEFENDER = Button(image= botao_azul, pos=(1130, 600), 
+                                text_input="DEFENDER", font=get_font(15), base_color="white", hovering_color="orange")
+
+                BOTAO_RECARREGAR = Button(image= botao_azul, pos=(1017, 670), 
+                                text_input="RECARREGAR", font=get_font(13), base_color="white", hovering_color="orange")
+                
+
+                for button in [BOTAO_ATAQUE, BOTAO_DEFENDER, BOTAO_RECARREGAR]:
+                    button.changeColor(MENU_MOUSE_POS)
+                    button.update(screen)  
+
+                for event in pygame.event.get(): 
+                    if event.type == pygame.QUIT: # <---- verifica se o usuario fechou o app                        
+                        run = False
+                        pygame.quit()
+                        sys.exit()   
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:                             
+                        if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                            options_jogo()
+
+                        if pygame.key.get_pressed()[K_ESCAPE]:
+                            options_jogo()
+                    
+                        if BOTAO_ATAQUE.checkForInput(MENU_MOUSE_POS):
+                            crustaceo.atacar()
+                            turno = 'peixe'
+                            
+                        if BOTAO_DEFENDER.checkForInput(MENU_MOUSE_POS):
+                            crustaceo.defender()
+                            turno = 'peixe'
+                            
+                        if BOTAO_RECARREGAR.checkForInput(MENU_MOUSE_POS):
+                            crustaceo.recarregar()
+                            turno = 'peixe'
+                                                
+            pygame.display.flip() #o display.flip tem basicamente a mesma função do .update, ele atualiza os elementos na tela
 
 #MENU----------------------------------------------------------------------------------------------------------------------
-def get_font(size): # Definindo a fonte utilizada e seu tamanho
-    return pygame.font.Font('fontes/Super Mario Bros. 2.ttf', 30)
-
-def fonte_botoes(size):
-    return pygame.font.Font('fontes/Super Mario Bros. 2.ttf', 14)
 
 #função que mexemos no Áudio do jogo no menu fora do jogo, função chamada assim que clicamos em Som no menu_jogo --------------------------------------------------------
 def audio_menu():
@@ -451,18 +550,18 @@ def audio_menu():
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
         screen.fill((38, 62, 115))
-        OPTIONS_TEXT = get_font(1000).render("ALTERAR VOLUME", True, "Black")
+        OPTIONS_TEXT = get_font(30).render("ALTERAR VOLUME", True, "Black")
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 60))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
         AUMENTAR_SOM = Button(image=None, pos=(650, 280), 
-                        text_input="+", font=get_font(100), base_color="black", hovering_color="orange")
+                        text_input="+", font=get_font(50), base_color="black", hovering_color="orange")
         
         DIMINUIR_SOM = Button(image=None, pos=(650, 380), 
-                            text_input="-", font=get_font(100), base_color="black", hovering_color="orange")
+                            text_input="-", font=get_font(50), base_color="black", hovering_color="orange")
         
         VOLTAR = Button(image=None, pos=(650, 650), 
-                            text_input="voltar", font=get_font(100), base_color="black", hovering_color="orange")
+                            text_input="voltar", font=get_font(30), base_color="black", hovering_color="orange")
 
         for button in [AUMENTAR_SOM, VOLTAR, DIMINUIR_SOM]:
             button.changeColor(OPTIONS_MOUSE_POS)
@@ -501,15 +600,15 @@ def options_menu():
 
         screen.fill((38, 62, 115))
 
-        OPTIONS_TEXT = get_font(1000).render("MENU DE OPÇÕES", True, "Black")
+        OPTIONS_TEXT = get_font(30).render("MENU DE OPÇÕES", True, "Black")
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 60))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
         Som  = Button(image=None, pos= (640, 360),
-                    text_input ="som", font=get_font(100), base_color="black", hovering_color="orange")
+                    text_input ="som", font=get_font(30), base_color="black", hovering_color="orange")
         
         VOLTAR_TELA_INICIAL = Button(image=None, pos=(640, 650), 
-                            text_input="voltar a tela inicial", font=get_font(100), base_color="black", hovering_color="orange")
+                            text_input="voltar a tela inicial", font=get_font(30), base_color="black", hovering_color="orange")
 
         for button in [Som, VOLTAR_TELA_INICIAL]:
             button.changeColor(OPTIONS_MOUSE_POS)
@@ -540,18 +639,18 @@ def options_jogo():
 
         screen.fill((38, 62, 115))
 
-        OPTIONS_TEXT = get_font(1000).render("JOGO PAUSADO.", True, "Black")
+        OPTIONS_TEXT = get_font(30).render("JOGO PAUSADO.", True, "Black")
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 60))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
         RETOMAR = Button(image=None, pos=(650, 280), 
-                            text_input="retomar", font=get_font(100), base_color="black", hovering_color="orange")
+                            text_input="retomar", font=get_font(30), base_color="black", hovering_color="orange")
         
         Som  = Button(image=None, pos= (640, 380),
-                    text_input ="som", font=get_font(100), base_color="black", hovering_color="orange")
+                    text_input ="som", font=get_font(30), base_color="black", hovering_color="orange")
 
         VOLTAR_AO_MENU= Button(image=None, pos=(650, 480), 
-                            text_input="voltar ao menu", font=get_font(100), base_color="black", hovering_color="orange")
+                            text_input="voltar ao menu", font=get_font(30), base_color="black", hovering_color="orange")
         
         for button in [RETOMAR, Som, VOLTAR_AO_MENU]:
             button.changeColor(OPTIONS_MOUSE_POS)
@@ -587,25 +686,28 @@ def End_game():
     pygame.mixer.music.set_volume(0.03)
     pygame.mixer.music.play(-1)
 
-    End_loop = True
+    End_loop = True 
+    global vencedor
+
     while End_loop:
-        OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
+        ENDGAME_MOUSE_POS = pygame.mouse.get_pos()
 
         screen.fill((51, 153, 255))
 
-        OPTIONS_TEXT = get_font(1000).render("Jogo Finalizado.", True, "white")
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 60))
+        ENDGAME_TEXT = get_font(30).render("Jogo Finalizado.", True, "yellow")
+        ENDGAME_RECT = ENDGAME_TEXT.get_rect(center=(660, 60))
+        ENDGAME_WIN_TEXT = get_font(30).render(f"VENCEDOR: {vencedor}.", True, "yellow")
+        ENDGAME_WIN_RECT = ENDGAME_TEXT.get_rect(center=(660, 90))
 
-        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
-
+        screen.blit(ENDGAME_TEXT, ENDGAME_RECT)
         VOLTAR_MENU_FIM_JOGO = Button(image=None, pos=(320, 650), 
-                                text_input="voltar ao menu", font=get_font(100), base_color="white", hovering_color="orange")
+                                text_input="voltar ao menu", font=get_font(30), base_color="white", hovering_color="orange")
         
         JOGAR_NOVAMENTE = Button(image=None, pos=(950, 650), 
-                                text_input="Jogar Novamente", font=get_font(100), base_color="white", hovering_color="orange")
+                                text_input="Jogar Novamente", font=get_font(30), base_color="white", hovering_color="orange")
         
         for button in [VOLTAR_MENU_FIM_JOGO, JOGAR_NOVAMENTE]:
-               button.changeColor(OPTIONS_MOUSE_POS)
+               button.changeColor(ENDGAME_MOUSE_POS)
                button.update(screen)
 
         for event in pygame.event.get():
@@ -613,14 +715,15 @@ def End_game():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if VOLTAR_MENU_FIM_JOGO.checkForInput(OPTIONS_MOUSE_POS):
+                if VOLTAR_MENU_FIM_JOGO.checkForInput(ENDGAME_MOUSE_POS):
                     pygame.mixer.music.unload()
                     main_menu()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if JOGAR_NOVAMENTE.checkForInput(OPTIONS_MOUSE_POS):
+                if JOGAR_NOVAMENTE.checkForInput(ENDGAME_MOUSE_POS):
                     jogo()    
                    
         pygame.display.flip() 
+                
 #função da aba créditos, será chamada assim que clicar em ''créditos'' ------------------------------------------------------------------------------------
 def creditos_def():
      select.play()
@@ -631,28 +734,28 @@ def creditos_def():
 
           screen.fill((51, 153, 255))
 
-          OPTIONS_TEXT = get_font(1000).render("Créditos.", True, "yellow")
+          OPTIONS_TEXT = get_font(30).render("Créditos.", True, "yellow")
           OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 60))
 
-          palmeira_text = get_font(1000).render("Arthur Francisco.", True, "white")
+          palmeira_text = get_font(30).render("Arthur Francisco.", True, "white")
           palmeira_rect = palmeira_text.get_rect(center=(660, 150))
 
-          davi_text = get_font(1000).render("Arthur Palmeira.", True, "white")
+          davi_text = get_font(30).render("Arthur Palmeira.", True, "white")
           davi_rect = davi_text.get_rect(center=(660, 200))
 
-          francisco_text = get_font(1000).render("Celso de Lira.", True, "white")
+          francisco_text = get_font(30).render("Celso de Lira.", True, "white")
           francisco_rect = francisco_text.get_rect(center=(660, 250))
 
-          samuel_text = get_font(1000).render("Davi Leahy.", True, "white")
+          samuel_text = get_font(30).render("Davi Leahy.", True, "white")
           samuel_rect = samuel_text.get_rect(center=(660, 300))
 
-          vitor_text = get_font(1000).render("Filipe Malgueiro.", True, "white")
+          vitor_text = get_font(30).render("Filipe Malgueiro.", True, "white")
           vitor_rect = vitor_text.get_rect(center=(660, 350))
 
-          celso_text = get_font(1000).render("Samuel Braga.", True, "white")
+          celso_text = get_font(30).render("Samuel Braga.", True, "white")
           celso_rect = celso_text.get_rect(center=(660, 400))
 
-          felipinho_text = get_font(1000).render("Victor Leão.", True, "white")
+          felipinho_text = get_font(30).render("Victor Leão.", True, "white")
           felipinho_rect = felipinho_text.get_rect(center=(660, 450))
 
           screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
@@ -665,7 +768,7 @@ def creditos_def():
           screen.blit(felipinho_text, felipinho_rect)
 
           VOLTAR_MENU_CREDITO = Button(image=None, pos=(650, 650), 
-                                text_input="voltar ao menu", font=get_font(100), base_color="white", hovering_color="orange")
+                                text_input="voltar ao menu", font=get_font(30), base_color="white", hovering_color="orange")
           
           for button in [VOLTAR_MENU_CREDITO]:
                button.changeColor(OPTIONS_MOUSE_POS)
@@ -694,16 +797,16 @@ def main_menu():
         screen.blit(logo, (200, 50))
 
         JOGAR = Button(image=None , pos=(640, 350), 
-                            text_input="JOGAR", font=get_font(75), base_color="white", hovering_color="orange")
+                            text_input="JOGAR", font=get_font(30), base_color="white", hovering_color="orange")
 
         OPCOES = Button(image=None, pos=(640, 450), 
-                            text_input="OPÇÕES", font=get_font(75), base_color="white", hovering_color="orange")
+                            text_input="OPÇÕES", font=get_font(30), base_color="white", hovering_color="orange")
         
         CREDITOS = Button(image=None, pos=(640, 550), 
-                            text_input="CRÉDITOS", font=get_font(75), base_color="white", hovering_color="orange")
+                            text_input="CRÉDITOS", font=get_font(30), base_color="white", hovering_color="orange")
         
         SAIR = Button(image=None, pos=(640, 650), 
-                            text_input="SAIR", font=get_font(75), base_color="white", hovering_color="orange")
+                            text_input="SAIR", font=get_font(30), base_color="white", hovering_color="orange")
     
         for button in [JOGAR, OPCOES, SAIR, CREDITOS]:
             button.changeColor(MENU_MOUSE_POS)
@@ -716,7 +819,8 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if JOGAR.checkForInput(MENU_MOUSE_POS):
                     select.play()
-                    jogo()
+                    # jogo()
+                    Menu_Times()
                 if OPCOES.checkForInput(MENU_MOUSE_POS):
                     options_menu()
                 if CREDITOS.checkForInput(MENU_MOUSE_POS):
@@ -724,29 +828,8 @@ def main_menu():
                 if SAIR.checkForInput(MENU_MOUSE_POS):
                     pygame.quit()
                     sys.exit()
+
         pygame.display.flip()
-
-# =-=-=-=-=-=-
-
-class Char(Arma):
-    def __init__(self, player_name, equipe, Arma, vida = 100):
-        self.player_name = player_name
-        self.vida = vida
-        self.Arma = Arma
-        self.equipe = equipe 
-        self.defesa = False
-
-    def atacar(self):
-        self.Arma.atirar()
-        acerto = randint(1,100) # Pega um numero entre 1 e 100, no range da precisão, acerta.
-
-        if self.Arma.precisao < acerto:
-            return False
-        elif self.Arma.precisao >= acerto:
-            return True
-    
-    def defender(self):
-        print('Você defende!')
-        self.defesa = True # Retorna para false depois
         
 main_menu()
+# Menu_Times()
