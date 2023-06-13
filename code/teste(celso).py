@@ -23,6 +23,8 @@ select.set_volume(0.07) # Define o volume do efeito sonoro
 icon = pygame.image.load('ui/wave.png') # .load é usado para ''carregar'' os arquivos
 pygame.display.set_icon(icon) # <---- Define icone
 logo = pygame.image.load("ui/shells and fins horizintal.png")
+icon_peixe = pygame.image.load("ui\icon_peixe.png")
+icon_crustaceo = pygame.image.load("ui\icon_crustaceo.png")
 #FUNDOS-------------------------------------------------------------------------------------------------------------------]
 imagem_fundo = pygame.image.load('ui/fundo_pokemon.jpg') # Definindo a imagem de fundo da batalha
 imagem_fundo = pygame.transform.scale(imagem_fundo, (1280, 720)) # .transform muda a escala de uma imagem para a desejada
@@ -78,6 +80,9 @@ duvida_laranja = pygame.image.load('ui/DUVIDA_LARANJA.png')
 
 backarrow = pygame.image.load('ui/backarrow.png')
 backarrow = pygame.transform.scale(backarrow, (65, 65))
+
+bullet = pygame.image.load("ui/bullet.png")
+bullet = pygame.transform.scale(bullet, (25, 25))
 #UIS ---------------------------------------------------------------------------------------------------------------------------------]
 peixarlison_ak2o_sprite_frente = pygame.image.load('sprites/peixarlison/peixarlison ak-2o.png')
 peixarlison_bubbleblaster_sprite_frente = pygame.image.load("sprites\peixarlison\peixarlison_bubbleblaster.png")
@@ -87,6 +92,8 @@ crabonildo_ak2o_sprite_costas = pygame.image.load("sprites\crabonildo\crabonildo
 crabonildo_bubbleblaster_sprite_costas = pygame.image.load("sprites\crabonildo\crabonildo_costas_bubble.png")
 crabonildo_powerwasher_sprite_costas = pygame.image.load("sprites\crabonildo\crabonildo_costas_power.png")
 
+
+teste_dano = pygame.image.load("sprites\peixarlison\peixarlison costa bubbleblaster.png")
 # Classes -----------------------------------------------------------------------------------------------------------]
 """
 Class Barra_De_Vida
@@ -141,7 +148,7 @@ class Arma:
 
             if self.municao > 0:
                 self.municao = self.municao - 1
-                print(f'\nAtirou!\n')
+                # print(f'\nAtirou!\n')
                 # print('mun:', self.municao)
 
             elif self.municao <= 0:
@@ -168,9 +175,7 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
             AK2O: peixarlison_ak2o_sprite_frente,
             BubbleBlaster: peixarlison_bubbleblaster_sprite_frente,
             PowerWasher: peixarlison_powerwasher_sprite_frente
-        } # <-- Criando lista dos sprites
-        
-        #-- Adiciona sprites na lista
+        } # <-- Criando lista dos sprites    
         
         self.Arma = Arma
         self.Barra_De_Vida = Barra_De_Vida
@@ -179,26 +184,23 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
         self.rect.topleft = x_peixe, y_peixe
         self.image = pygame.transform.scale(self.image, (340, 242))
 
-        #-- Desenhando as imagens
-        
     def atacar(self):
-        self.Arma.atirar()
-
         acerto = randint(1,100) # Pega um numero entre 1 e 100, no range da precisão, acerta.
+        self.Arma.atirar()
         if self.Arma.precisao < acerto:
-            print ("ERROU MISERAVI")
+            print ("PEIXE ERROU")
             return False
-            
-        if self.Arma.precisao >= acerto:
-            print ("ACERTOU MISERIA")
-            vida_crustaceo.hp = vida_crustaceo.hp - self.Arma.dano
-            print ('vida crustaceo:', vida_crustaceo.hp)
 
+        if self.Arma.precisao >= acerto:
+            print ("PEIXE ACERTOU MISERIA")
+            vida_crustaceo.hp = vida_crustaceo.hp - self.Arma.dano
             if (vida_crustaceo.hp <= 0):
                 img_vencedor = pygame.image.load('sprites/peixarlison/peixarlison_perfil.png')
                 img_vencedor = pygame.transform.scale(img_vencedor, (350, 250))
                 vencedor = 'Peixe'
                 End_game(vencedor, img_vencedor)
+
+           
 
             return True
 
@@ -216,6 +218,10 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
     def update(self): # <-- Anima os sprites
         self.image = self.sprites_arma[self.Arma]
         self.image = pygame.transform.scale(self.image, ((340, 242))) # <-- Mudando o tamanho da imagem
+            
+            
+        
+            
         
 
 #dimensões do peixe
@@ -247,7 +253,6 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
         self.rect = self.image.get_rect()
         self.rect.topleft = x_crustaceo, y_crustaceo
         self.image = pygame.transform.scale(self.image, (111*3, 131*3))
-
         #-- Desenhando as imagens
 
         # self.animar = False # Define se os sprites vão rodar ou não
@@ -256,13 +261,12 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
 
         acerto = randint(1,100) # Pega um numero entre 1 e 100, no range da precisão, acerta.
         if self.Arma.precisao < acerto:
-            print ("ERROU MISERAVI")
+            print ("CRUSTACEO ERROU")
             return False
             
         if self.Arma.precisao >= acerto:
-            print ("ACERTOU MISERIA")
+            print ("CRUSTACEO ACERTOU")
             vida_peixe.hp = vida_peixe.hp - self.Arma.dano
-            print ('vida peixe:', vida_peixe.hp)
 
             if (vida_peixe.hp <= 0):
                 img_vencedor = pygame.image.load('sprites/crabonildo/crabonildo_perfil.png')
@@ -557,9 +561,9 @@ def jogo():
             screen.blit(plataforma, (720,250))   # <-------  adicionando a plataforma a tela nas posições x e y
             screen.blit(plataforma, (0, 560))
 
-            screen.blit(status_azul, (820, 380))
+            screen.blit(status_laranja, (820, 380))
             vida_crustaceo.desenho_bar_vida(screen)
-            screen.blit(status_laranja, (104, -80))
+            screen.blit(status_azul, (104, -80))
             vida_peixe.desenho_bar_vida(screen)
 
     #opções-----------------------------------------------------------------------------------------------------------------------
@@ -578,16 +582,24 @@ def jogo():
             all_sprites_crustaceo.update()
 
             if turno == 'peixe':                
+                LIFE_NUMBERS = get_font(15).render(f"{vida_peixe.hp}/{vida_peixe.max_hp}", True, "white")
+                AMMO_NUMBERS = get_font(15).render(f"{peixe.Arma.municao}", True, "white")
+                NAME_PEIXE = get_font(23).render("PEIXARLISON", True, (0, 204, 255))
                 screen.blit(BG_ACOES, (50, -80))
-                screen.blit(status_laranja, (104, -80))
+                screen.blit(status_azul, (104, -80))
                 vida_peixe.desenho_bar_vida(screen)
-                BOTAO_ATAQUE_PEIXE = Button(image=botao_laranja, pos=(175, 135),
+                screen.blit(LIFE_NUMBERS, (300, 75))
+                screen.blit(icon_peixe, (470, 55))
+                screen.blit(bullet, (120, 69))
+                screen.blit(AMMO_NUMBERS, (150, 75))
+                screen.blit(NAME_PEIXE, (150, 13))
+                BOTAO_ATAQUE_PEIXE = Button(image=botao_azul, pos=(175, 135),
                                             text_input="ATACAR", font=get_font(15), base_color="white",
                                             hovering_color="orange")
-                BOTAO_DEFENDER_PEIXE = Button(image=botao_laranja, pos=(400, 135),
+                BOTAO_DEFENDER_PEIXE = Button(image=botao_azul, pos=(400, 135),
                                                 text_input="DEFENDER", font=get_font(15), base_color="white",
                                                 hovering_color="orange")
-                BOTAO_RECARREGAR_PEIXE = Button(image=botao_laranja, pos=(285, 200),
+                BOTAO_RECARREGAR_PEIXE = Button(image=botao_azul, pos=(285, 200),
                                                     text_input="RECARREGAR", font=get_font(13), base_color="white",
                                                     hovering_color="orange")
                 for button in [BOTAO_ATAQUE_PEIXE, BOTAO_DEFENDER_PEIXE, BOTAO_RECARREGAR_PEIXE]:
@@ -620,18 +632,25 @@ def jogo():
                             peixe.recarregar()
                             turno = 'crustaceo'
 
-            if turno == 'crustaceo':                
+            if turno == 'crustaceo':
+                LIFE_NUMBERS = get_font(15).render(f"{vida_crustaceo.hp}/{vida_crustaceo.max_hp}", True, "orange")                
+                AMMO_NUMBERS = get_font(15).render(f"{crustaceo.Arma.municao}", True, "orange")
+                NAME_CRUSTACEO = get_font(23).render("CRABONILDO", True, "orange")
                 screen.blit(BG_ACOES, (775, 380))
-                screen.blit(status_azul, (820, 380))
+                screen.blit(status_laranja, (820, 380))
                 vida_crustaceo.desenho_bar_vida(screen)
-
-                BOTAO_ATAQUE = Button(image= botao_azul, pos=(900, 600), 
+                screen.blit(LIFE_NUMBERS, (1040, 535))
+                screen.blit(icon_crustaceo, (785, 510))
+                screen.blit(bullet, (855, 529))
+                screen.blit(AMMO_NUMBERS, (880, 535))
+                screen.blit(NAME_CRUSTACEO, (900, 472))
+                BOTAO_ATAQUE = Button(image= botao_laranja, pos=(900, 600), 
                             text_input="ATACAR", font=get_font(15), base_color="white", hovering_color="orange")
                             
-                BOTAO_DEFENDER = Button(image= botao_azul, pos=(1130, 600), 
+                BOTAO_DEFENDER = Button(image= botao_laranja, pos=(1130, 600), 
                                 text_input="DEFENDER", font=get_font(15), base_color="white", hovering_color="orange")
 
-                BOTAO_RECARREGAR = Button(image= botao_azul, pos=(1017, 670), 
+                BOTAO_RECARREGAR = Button(image= botao_laranja, pos=(1017, 670), 
                                 text_input="RECARREGAR", font=get_font(13), base_color="white", hovering_color="orange")
                 
                 for button in [BOTAO_ATAQUE, BOTAO_DEFENDER, BOTAO_RECARREGAR]:
@@ -805,7 +824,7 @@ def options_jogo():
 
         pygame.display.flip()
     
-def End_game(vencedor, img_vencedor): #recebe a variavel vencedor como parametro, que é definida quando o oponente perde a vida
+def     End_game(vencedor, img_vencedor): #recebe a variavel vencedor como parametro, que é definida quando o oponente perde a vida
     select.play()
     pygame.mixer.music.unload()
     pygame.mixer.music.load('musica_e_sons/musica_win.mp3')
