@@ -133,9 +133,6 @@ PowerWasher = Arma('PowerWasher', 40, 70, 1, 1) #Sniper
 #Perde accuracy ao atirar consecutivamente
 #Fazer as diferenças entre classes(mirar e defender)
 
-mira = False
-defesa = False
-
 #definindo sprites ------------------------------------------------------------------------]
 class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do Peixe
 
@@ -190,8 +187,7 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
 
     def mirar(self):
         print('PEIXARLYSON ESTA MIRANDO')
-        # mira = True
-        return True
+        mira == 1
 
     def recarregar(self):
         self.Arma.recarregar()
@@ -435,14 +431,13 @@ def jogo():
                             options_jogo()
 
                         if BOTAO_ATAQUE_PEIXE.checkForInput(MENU_MOUSE_POS):
-                            if peixe.mirar() == True:
+                            if mira == 1:
                                 peixe.Arma.precisao == 100
                                 peixe.atacar()
-                                peixe.mirar() == False
-                                # mira = False
+                                peixe.mira == 0
                                 turno = 'crustaceo'
 
-                            if peixe.mirar() == False:
+                            if mira == 0:
                                 peixe.atacar()
                                 turno = 'crustaceo'
                             
@@ -454,7 +449,8 @@ def jogo():
                             mira = False
                             peixe.recarregar()
                             turno = 'crustaceo'
-            mira = False
+                            mira == 0
+                            
             if turno == 'crustaceo':                
                 screen.blit(BG_ACOES, (775, 380))
                 screen.blit(status_azul, (820, 380))

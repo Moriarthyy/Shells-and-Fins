@@ -154,7 +154,7 @@ AK2O = Arma('AK2O', 30, 55, 4, 4) #Rifle
 BubbleBlaster = Arma('BubbleBlaster', 40, 45, 2, 2) #Shotgun
 PowerWasher = Arma('PowerWasher', 49, 75, 1, 1) #Sniper
 
-AK2O_2 = Arma('AK2O', 30, 55, 4, 4) #Rifle
+AK2O_2 = Arma('AK2O', 30, 70, 4, 4) #Rifle
 BubbleBlaster_2 = Arma('BubbleBlaster', 40, 45, 2, 2) #Shotgun
 PowerWasher_2 = Arma('PowerWasher', 49, 75, 1, 1) #Sniper
 #Diminuir accuracy com tiros consecutivos.(Resetar acurracy ao recarregar)
@@ -165,12 +165,11 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
 
     def __init__(self, Arma, Barra_De_Vida):
         pygame.sprite.Sprite.__init__(self)
-
+        
         self.sprites_arma = {
-            AK2O: peixarlison_ak2o_sprite_frente,
+            AK2O: peixarlison_ak2o_parado,
             BubbleBlaster: peixarlison_bubbleblaster_sprite_frente,
             PowerWasher: peixarlison_powerwasher_sprite_frente
-            
         } # <-- Criando lista dos sprites    
         
         self.Arma = Arma
@@ -179,16 +178,19 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
         self.rect = self.image.get_rect()
         self.rect.topleft = x_peixe, y_peixe
         self.image = pygame.transform.scale(self.image, (340, 242))
+        
+        mira = False
+
+    def mirar(self):
+        print('PEIXARLYSON ESTA MIRANDO')
+        pass
 
     def atacar(self):
         acerto = randint(1,100) # Pega um numero entre 1 e 100, no range da precisão, acerta.
         self.Arma.atirar()
 
-        if self.Arma.precisao < acerto:
-            print ("PEIXE ERROU")
+        if mira == True:
 
-        if self.Arma.precisao >= acerto:
-            print ("PEIXE ACERTOU MISERIA")
             vida_crustaceo.hp = vida_crustaceo.hp - self.Arma.dano
 
             if (vida_crustaceo.hp <= 0):
@@ -197,10 +199,23 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
                 vencedor = 'Peixe'
                 End_game(vencedor, img_vencedor)
 
-    def defender(self):
-        print('PEIXARLISON ESTA MIRANDO')
-        defender = True
-        #self.Arma.precisao = self.Arma.precisao + 15
+        if mira == False:
+
+            if self.Arma.precisao >= acerto:
+             print ("PEIXE ACERTOU MISERIA")
+             vida_crustaceo.hp = vida_crustaceo.hp - self.Arma.dano
+
+            if self.Arma.precisao < acerto:
+                print ("PEIXE ERROU")
+
+            if (vida_crustaceo.hp <= 0):
+                img_vencedor = pygame.image.load('sprites/peixarlison/peixarlison_perfil.png')
+                img_vencedor = pygame.transform.scale(img_vencedor, (350, 250))
+                vencedor = 'Peixe'
+                End_game(vencedor, img_vencedor)
+
+        mira = False
+
 
     def recarregar(self):
         self.Arma.recarregar()
@@ -211,7 +226,6 @@ class Peixe(pygame.sprite.Sprite, Arma, Barra_De_Vida): #Classe para o sprite do
     def update(self): # <-- Anima os sprites
         self.image = self.sprites_arma[self.Arma]
         self.image = pygame.transform.scale(self.image, ((340, 242))) # <-- Mudando o tamanho da imagem
-            
 
 #dimensões do peixe
 x_peixe = 800
@@ -274,10 +288,10 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
 
     def update(self): # <-- Anima os sprites
             self.image = self.sprites_armas_crustaceo[self.Arma]
-            self.image = pygame.transform.scale(self.image, (95*3.5, 95*3)) # <-- Mudando o tamanho da imagem
+            self.image = pygame.transform.scale(self.image, (230*1.7, 136*1.8)) # <-- Mudando o tamanho da imagem
         
-x_crustaceo = 130
-y_crustaceo = 400
+x_crustaceo = 75
+y_crustaceo = 440
 
 vida_crustaceo = Barra_De_Vida(posX_vida=863, posY_vida=506, l=295, a=16, max_hp=100) # <-- Barra de vida 
 
@@ -368,7 +382,9 @@ arma_escolhida_crustaceo = None
 
 # Menu de seleção de armas
 def Menu_Armas_Peixe():
+    select.play()
     global arma_escolhida_peixe
+    global peixe
     escolha_arma = True
     while escolha_arma:
         
@@ -411,83 +427,85 @@ def Menu_Armas_Peixe():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if AK2O_stats.checkForInput(MENU_MOUSE_POS):
                     arma_escolhida_peixe = AK2O
-            
+                    peixe = Peixe(Arma= AK2O, Barra_De_Vida=vida_peixe)
                 if Bubble_stats.checkForInput(MENU_MOUSE_POS):
                     arma_escolhida_peixe = BubbleBlaster
-                    
+                    peixe = Peixe(Arma= BubbleBlaster, Barra_De_Vida=vida_peixe)   
                 if powerwasher_stats.checkForInput(MENU_MOUSE_POS):
                     arma_escolhida_peixe = PowerWasher
-                    
+                    peixe = Peixe(Arma= PowerWasher, Barra_De_Vida=vida_peixe)
                 if backarrow_back.checkForInput(MENU_MOUSE_POS):
                     Menu_Times()
+
             if arma_escolhida_peixe is not None and arma_escolhida_crustaceo is None:
                 Menu_Armas_Crustaceo()
             if arma_escolhida_peixe is not None and arma_escolhida_crustaceo is not None:
                 jogo()
                
-        peixe.update()   
+        peixe.update()
         pygame.display.flip()
-        
+
 def Menu_Armas_Crustaceo():
-        global arma_escolhida_crustaceo
-        escolha_arma_crustaceo = True
-        while escolha_arma_crustaceo:
+    select.play()
+    global arma_escolhida_crustaceo
+    escolha_arma_crustaceo = True
+    while escolha_arma_crustaceo:
 
-            screen.blit(fundo_laranja, (0,0))
-            screen.blit(duvida_laranja, (960, 168))
-            
-            MENU_MOUSE_POS = pygame.mouse.get_pos()
-            
-            OPTIONS_TEXT = get_font(30).render("Escolha a Arma do Crustaceo.", True, "black")
-            OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 100))
-            screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
+        screen.blit(fundo_laranja, (0,0))
+        screen.blit(duvida_laranja, (960, 168))
+        
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+        
+        OPTIONS_TEXT = get_font(30).render("Escolha a Arma do Crustaceo.", True, "black")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 100))
+        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
-            AK2O_stats = Button(image=ak_selecao_laranja, pos=(200, 375), 
-                                    text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
-            
-            Bubble_stats = Button(image=bubble_selecao_laranja, pos=(500, 375), 
-                                    text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
-            
-            powerwasher_stats = Button(image=powerwasher_selecao_laranja, pos=(800, 375), 
-                                    text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
-            
-            backarrow_back = Button(image=backarrow, pos=(85, 70), 
-                                    text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
+        AK2O_stats = Button(image=ak_selecao_laranja, pos=(200, 375), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
+        
+        Bubble_stats = Button(image=bubble_selecao_laranja, pos=(500, 375), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
+        
+        powerwasher_stats = Button(image=powerwasher_selecao_laranja, pos=(800, 375), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
+        
+        backarrow_back = Button(image=backarrow, pos=(85, 70), 
+                                text_input="", font=get_font(30), base_color=(0, 204, 255), hovering_color="white")
 
-            AK2O_Name = Button(image=None, pos=(200, 330), 
-                                    text_input="AK2O", font=get_font(15), base_color=(255, 255, 255), hovering_color="orange")
-            Bubble_Name = Button(image=None, pos=(500, 330), 
-                                    text_input="BubbleBlaster", font=get_font(15), base_color=(255, 255, 255), hovering_color="orange")
-            Powerwasher_Name = Button(image=None, pos=(800, 330), 
-                                    text_input="PowerWasher", font=get_font(15), base_color=(255, 255, 255), hovering_color="orange")
-            
-            for button in [AK2O_stats,Bubble_stats,powerwasher_stats, backarrow_back, AK2O_Name, Bubble_Name, Powerwasher_Name]:
-                button.changeColor(MENU_MOUSE_POS)
-                button.update(screen)
+        AK2O_Name = Button(image=None, pos=(200, 330), 
+                                text_input="AK2O", font=get_font(15), base_color=(255, 255, 255), hovering_color="orange")
+        Bubble_Name = Button(image=None, pos=(500, 330), 
+                                text_input="BubbleBlaster", font=get_font(15), base_color=(255, 255, 255), hovering_color="orange")
+        Powerwasher_Name = Button(image=None, pos=(800, 330), 
+                                text_input="PowerWasher", font=get_font(15), base_color=(255, 255, 255), hovering_color="orange")
+        
+        for button in [AK2O_stats,Bubble_stats,powerwasher_stats, backarrow_back, AK2O_Name, Bubble_Name, Powerwasher_Name]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if AK2O_stats.checkForInput(MENU_MOUSE_POS):
-                        arma_escolhida_crustaceo = AK2O_2
-                        
-                    if Bubble_stats.checkForInput(MENU_MOUSE_POS):
-                        arma_escolhida_crustaceo = BubbleBlaster_2
-                        
-                    if powerwasher_stats.checkForInput(MENU_MOUSE_POS):
-                        arma_escolhida_crustaceo = PowerWasher_2
-                        
-                    if backarrow_back.checkForInput(MENU_MOUSE_POS):
-                        Menu_Times()
-            if arma_escolhida_crustaceo is not None and arma_escolhida_peixe is None:
-                Menu_Armas_Peixe()
-            if arma_escolhida_crustaceo is not None and arma_escolhida_peixe is not None:
-                jogo()
-                
-            crustaceo.update()
-            pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if AK2O_stats.checkForInput(MENU_MOUSE_POS):
+                    arma_escolhida_crustaceo = AK2O_2
+                    
+                if Bubble_stats.checkForInput(MENU_MOUSE_POS):
+                    arma_escolhida_crustaceo = BubbleBlaster_2
+                    
+                if powerwasher_stats.checkForInput(MENU_MOUSE_POS):
+                    arma_escolhida_crustaceo = PowerWasher_2
+                    
+                if backarrow_back.checkForInput(MENU_MOUSE_POS):
+                    Menu_Times()
+        if arma_escolhida_crustaceo is not None and arma_escolhida_peixe is None:
+            Menu_Armas_Peixe()
+        if arma_escolhida_crustaceo is not None and arma_escolhida_peixe is not None:
+            jogo()
+            
+        crustaceo.update()
+        pygame.display.flip()
 
 #LOOP DO JOGO ---------------------------------------------------------------------] 
 def jogo():
@@ -602,14 +620,14 @@ def jogo():
                 BOTAO_ATAQUE_PEIXE = Button(image=botao_azul, pos=(175, 135),
                                                 text_input="ATACAR", font=get_font(15), base_color="white",
                                                 hovering_color="orange")
-                BOTAO_DEFENDER_PEIXE = Button(image=botao_azul, pos=(400, 135),
-                                                text_input="DEFENDER", font=get_font(15), base_color="white",
+                BOTAO_MIRAR_PEIXE = Button(image=botao_azul, pos=(400, 135),
+                                                text_input="MIRAR", font=get_font(15), base_color="white",
                                                 hovering_color="orange")
                 BOTAO_RECARREGAR_PEIXE = Button(image=botao_azul, pos=(285, 200),
                                                 text_input="RECARREGAR", font=get_font(13), base_color="white",
                                                 hovering_color="orange")
 
-                for button in [BOTAO_ATAQUE_PEIXE, BOTAO_DEFENDER_PEIXE, BOTAO_RECARREGAR_PEIXE]:
+                for button in [BOTAO_ATAQUE_PEIXE, BOTAO_MIRAR_PEIXE, BOTAO_RECARREGAR_PEIXE]:
                     button.changeColor(MENU_MOUSE_POS)
                     button.update(screen)
                       
@@ -633,13 +651,14 @@ def jogo():
                                 peixe.atacar()
                                 turno = 'crustaceo'
 
-                        if BOTAO_DEFENDER_PEIXE.checkForInput(MENU_MOUSE_POS):
-                            defender = False
+                        if BOTAO_MIRAR_PEIXE.checkForInput(MENU_MOUSE_POS):
                             peixe.mirar()
                             turno = 'crustaceo'
+                            
 
                         if BOTAO_RECARREGAR_PEIXE.checkForInput(MENU_MOUSE_POS):
                             peixe.recarregar()
+                            mira = False
                             turno = 'crustaceo'
 
                 if peixe.Arma.municao <= 0:
