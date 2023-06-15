@@ -263,7 +263,7 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
         self.image = self.sprites_armas_crustaceo[self.Arma]
         self.rect = self.image.get_rect()
         self.rect.topleft = x_crustaceo, y_crustaceo
-        self.image = pygame.transform.scale(self.image, (111*3, 131*3))
+        self.image = pygame.transform.scale(self.image, (230 * 1.7, 136 * 1.8))
         #-- Desenhando as imagens
 
         # self.animar = False # Define se os sprites vão rodar ou não
@@ -294,10 +294,10 @@ class Crustaceo(pygame.sprite.Sprite, Arma, Barra_De_Vida): # Mesma coisa do pei
 
     def update(self): # <-- Anima os sprites
             self.image = self.sprites_armas_crustaceo[self.Arma]
-            self.image = pygame.transform.scale(self.image, (95*3.5, 95*3)) # <-- Mudando o tamanho da imagem
+            self.image = pygame.transform.scale(self.image, (230 * 1.7, 136 * 1.8)) # <-- Mudando o tamanho da imagem
         
-x_crustaceo = 130
-y_crustaceo = 400
+x_crustaceo = 75
+y_crustaceo = 440
 
 vida_crustaceo = Barra_De_Vida(posX_vida=863, posY_vida=506, l=295, a=16, max_hp=100) # <-- Barra de vida 
 
@@ -346,6 +346,7 @@ def Menu_Times():
     global arma_escolhida_peixe, arma_escolhida_crustaceo
     arma_escolhida_peixe = None
     arma_escolhida_crustaceo = None
+
     escolha = True
     while escolha:
         
@@ -517,12 +518,16 @@ def jogo():
         global arma_escolhida_peixe, arma_escolhida_crustaceo
         peixe.Arma.municao = peixe.Arma.municao_max
         crustaceo.Arma.municao = crustaceo.Arma.municao_max
+
         peixe.Arma = arma_escolhida_peixe
         crustaceo.Arma = arma_escolhida_crustaceo
+
         vida_crustaceo.hp = vida_crustaceo.max_hp
         vida_peixe.hp = vida_peixe.max_hp
+
         arma_escolhida_crustaceo = None
         arma_escolhida_peixe = None
+
         pygame.mixer.music.unload #Pausa a música do menu, para não tocar durante o jogo
         pygame.mixer.music.load('musica_e_sons/musica_rocky.mp3')
         pygame.mixer.music.play(-1)
@@ -650,7 +655,6 @@ def jogo():
                         if BOTAO_ATAQUE_PEIXE.checkForInput(MENU_MOUSE_POS):
                             if peixe.Arma.municao <= 0:
                                 pass
-                            
                             else:
                                 peixe.atacar()
                                 turno = 'crustaceo'
@@ -671,11 +675,13 @@ def jogo():
                 screen.blit(BG_ACOES, (775, 380))
                 screen.blit(status_laranja, (820, 380))
                 vida_crustaceo.desenho_bar_vida(screen)
+
                 screen.blit(LIFE_NUMBERS_CRUSTACEO, (1040, 535))
                 screen.blit(icon_crustaceo, (785, 510))
                 screen.blit(bullet, (855, 529))
                 screen.blit(AMMO_NUMBERS_CRUSTACEO, (880, 535))
                 screen.blit(NAME_CRUSTACEO, (900, 472))
+
                 BOTAO_ATAQUE = Button(image= botao_laranja, pos=(900, 600), 
                             text_input="ATACAR", font=get_font(15), base_color="white", hovering_color="orange")
                             
@@ -710,7 +716,6 @@ def jogo():
                                 turno = 'peixe'
 
                         if BOTAO_DEFENDER.checkForInput(MENU_MOUSE_POS):
-                            crustaceo.defender()
                             turno = 'peixe'
                             
                         if BOTAO_RECARREGAR.checkForInput(MENU_MOUSE_POS):
@@ -862,7 +867,7 @@ def options_jogo():
 
         pygame.display.flip()
     
-def     End_game(vencedor, img_vencedor): #recebe a variavel vencedor como parametro, que é definida quando o oponente perde a vida
+def End_game(vencedor, img_vencedor): #recebe a variavel vencedor como parametro, que é definida quando o oponente perde a vida
     select.play()
     pygame.mixer.music.unload()
     pygame.mixer.music.load('musica_e_sons/musica_win.mp3')
@@ -901,10 +906,12 @@ def     End_game(vencedor, img_vencedor): #recebe a variavel vencedor como param
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if VOLTAR_MENU_FIM_JOGO.checkForInput(ENDGAME_MOUSE_POS):
                     pygame.mixer.music.unload()
                     main_menu()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if JOGAR_NOVAMENTE.checkForInput(ENDGAME_MOUSE_POS):
                     Menu_Times()    
@@ -923,7 +930,6 @@ def creditos_def():
           OPTIONS_TEXT = get_font(30).render("Creditos", True, (252, 182, 3))
           OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(660, 40))
 
-          
           screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
           screen.blit(card_celso, (80, 80))
           screen.blit(card_davi, (360, 80))
